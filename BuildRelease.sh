@@ -12,7 +12,7 @@ OUTPUT=releases/${VER}/${BUILD}
 mkdir -p ${OUTPUT}
 
 make distclean
-make -j2 firmware CORE=${CORE} NETWORK=${NETWORK} BUILD=${BUILD} TMC22XX=${TMC22XX} OUTPUT_NAME=firmware
+make -j$(nproc) firmware CORE=${CORE} NETWORK=${NETWORK} BUILD=${BUILD} TMC22XX=${TMC22XX} OUTPUT_NAME=firmware
 if [ -f ./build/firmware.bin ]; then
         mv ./build/firmware.bin ${OUTPUT}/firmware-${CORE,,}-${NETWORK,,}-${VER,,}.bin
         mv ./build/firmware.map ${OUTPUT}/firmware-${CORE,,}-${NETWORK,,}-${VER,,}.map
