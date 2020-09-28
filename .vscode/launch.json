@@ -15,9 +15,8 @@
         "name": "Debug Microcontroller",
         "request": "launch",
         "type": "cortex-debug",
-        "servertype": "openocd",
-        "configFiles": ["${workspaceRoot}\\.vscode\\openocd.cfg"],
-        "svdFile": "${workspaceRoot}\\.vscode\\STM32F40x.svd"
+        "servertype": "stutil",
+        "svdFile": "${workspaceRoot}/.vscode/STM32F40x.svd"
         },
 
     ]
