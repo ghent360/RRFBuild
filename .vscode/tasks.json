@@ -128,7 +128,7 @@
       {
         "label": "build STM PRNTRBoard V2 firmware",
         "type": "shell",
-        "command": "make -j$(nproc) CORE=STM32F4 NETWORK=none VARIANT=PRNTR_Vx all",
+        "command": "make -j$(nproc) CORE=STM32F4 NETWORK=none TMC22XX=true VARIANT=PRNTR_Vx all",
         "osx": {
           "options": {
             "env": {
