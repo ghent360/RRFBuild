@@ -28,7 +28,7 @@
         },
         "group": {
           "kind": "build",
-          "isDefault": true
+          "isDefault": false
         },
         "problemMatcher": "$gcc"
       },      
@@ -59,7 +59,7 @@
         },
         "group": {
           "kind": "build",
-          "isDefault": true
+          "isDefault": false
         },
         "problemMatcher": "$gcc"
       },      
@@ -90,7 +90,7 @@
         },
         "group": {
           "kind": "build",
-          "isDefault": true
+          "isDefault": false
         },
         "problemMatcher": "$gcc"
       },      
@@ -98,6 +98,37 @@
         "label": "build LPC NoNet firmware",
         "type": "shell",
         "command": "make CORE=LPC NETWORK=NONE all",
+        "osx": {
+          "options": {
+            "env": {
+              "PATH": "${env:PATH}"
+            }
+          }
+        },
+        "linux": {
+          "options": {
+            "env": {
+              "PATH": "${env:PATH}"
+            }
+          }
+        },
+        "windows": {
+          "options": {
+            "env": {
+              "PATH": "${env:PATH}"
+            }
+          }
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": "$gcc"
+      },      
+      {
+        "label": "build STM PRNTRBoard V2 firmware",
+        "type": "shell",
+        "command": "make -j$(nproc) CORE=STM32F4 NETWORK=none TMC22XX=true VARIANT=PRNTR_Vx all",
         "osx": {
           "options": {
             "env": {
@@ -152,7 +183,7 @@
         },
         "group": {
           "kind": "build",
-          "isDefault": true
+          "isDefault": false
         },
         "problemMatcher": "$gcc"
       },      
@@ -183,7 +214,7 @@
         },
         "group": {
           "kind": "build",
-          "isDefault": true
+          "isDefault": false
         },
         "problemMatcher": "$gcc"
       },      
