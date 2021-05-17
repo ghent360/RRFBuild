@@ -3,6 +3,21 @@ Introduction
 This document provides a brief overview of how the STM32F4 version of RRF makes use of the
 MCU hardware.
 
+GPIO
+====
+RRF makes use of the interrupt on change EXI feature for the WiFi, accelerometer, 
+some filament sensors and the DHT sensor interfaces. This requires that the pins 
+selected for these functions must be on different pins within a port. I.E.
+if pin A.1 is used then no other 1 pin (B.1, C.1 etc) can be used. This applies
+to the following GPIO pins:
+* ESPTfrReady
+* ESP chip select
+* Accelerometer int1pin
+* Other pins that may be used for filament sensors
+
+GPIO pins are used to drive the stepper motor step/dir pins. If all of the step pins
+are on the same port the RRF can use a more efficient mechanism when stepping multiple
+drivers.
 
 Timers
 ======
@@ -39,15 +54,31 @@ The current allocation of pins to timers is:
 * TIM12: PB_14 PH_6
 * TIM13: PA_6, PF_8
 * TIM14: PA_7, PF_9
+In the current release there is a fixed mapping between a selected pin and the timer used to
+drive it via PWM. Future versions may relax this and allow the selection of timer based on
+pin and selected frequency.
 
 SPI
 ===
 * SPI1 : Shared SPI, Master, main usage SD card interface, does not use DMA
 * SPI2 : Slave, SBC or WiFi interface, uses DMA (DMA1_Stream3, DMA1_Stream4)
-* SPI3 : Shared SPI, Master, main usage TMC SPI interface
+* SPI3 : Shared SPI, Master, main usage TMC SPI interface (DMA1_Stream5, DMA1_Stream0) 
 * SWSSP0 : Software SPI, Shared, main usage Thermocouples etc.
 * SWSSP1 : Software SPI, Shared, main usage LCD display
 * SWSSP2 : Software SPI, shared, main usage TMC SPI interface
+
+Note the above usage for SPI2/SPI3 is the the most common configuration. It is possible
+to operate both of these devices in Master or Slave mode and both make use of DMA.
+
+We have seen problems when running SPI1 using DMA. It seems to cause corruption of the
+GPIO regsiters being accessed via DMA for the software UART implementation. This problem
+may be cuased by this silicon bug: 
+2.1.10 DMA2 data corruption when managing AHB and APB peripherals in a concurrent way
+See: https://www.st.com/resource/en/errata_sheet/dm00037591-stm32f405-407xx-and-stm32f415-417xx-device-limitations-stmicroelectronics.pdf
+
+Because of this it is not recommended that SPI1 is operated using DMA unless this issue
+has been investigated further and resolved. This probably means that SPI1 should not be
+used for WiFi/SBC commications (which require operation at high speed in slave mode).
 
 SDIO
 ====
@@ -58,6 +89,7 @@ ADC
 * ADC1 : 12Bit Analog in + internal ref + mcu temp, uses DMA (DMA2_Stream4)
 * ADC2 : unused
 * ADC3 : 12Bit Analog in, uses DMA (DMA2_Stream0)
+The 12 bit ADC uses oversampling to provide an effective 14bit resolution.
 
 DMA
 ===
@@ -82,6 +114,16 @@ CRC Unit
 ========
 * CRC32 : Used for file I/O and SBC buffers
 
+USARTs
+======
+RRF currently uses only two serial devices, AUX and the WiFi interface. These are
+mapped based upon the selected pins to an actual hardware UART device. In versions 
+prior to V3.3-beta3 the only hardware UARTS enabled were 1, 3 and 6. In v3.3-beta3
+and later UARTS 1-6 are all available.
+
+TMC drivers that have a UART interface are driven via a DMA based software UART
+that can drive any pin in half duplex mode.
+
 Flash Memory
 ============
 * 0x8000000 : 32K Bootloader (provided by board)
@@ -92,7 +134,9 @@ Flash Memory
 RAM
 ===
 * 0x20000000 : 128K General purpose RAM
-* 0x10000000 : 64K CCMRAM unused
+* 0x10000000 : 64K CCMRAM used for task stacks and permanently allocated objects
+Note that because DMA access is not allowed to CCMRAM care must be taken when selecting
+objects to be placed in this area.
 
 SD Card access and RRF configuration
 ====================================
